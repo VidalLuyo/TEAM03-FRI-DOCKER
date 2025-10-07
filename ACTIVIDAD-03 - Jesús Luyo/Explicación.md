@@ -1,16 +1,14 @@
-# Optimización de Imágenes Docker
+# Documentación: Optimización de Imágenes Docker
 
-🎯 **Objetivo**: Crear imágenes más pequeñas y eficientes.
+## 🎯 Actividad 1: Optimización de Imágenes Docker
 
-🏗️ **Arquitectura Implementada**  
-- **Sistema Host**: Windows  
-- **Imagen Usada**: `openjdk:17-alpine` (para ejecución) y `maven:3.9.0-openjdk-17-alpine` (para construcción).
+### Objetivo
+Crear imágenes más pequeñas y eficientes utilizando técnicas de optimización.
 
----
+### Implementación
 
-🛠️ **Dockerfile - Versión optimizada (Usando Alpine)**
-
-```Dockerfile
+**Dockerfile Optimizado:**
+```dockerfile
 # Stage 1: Build with Maven
 FROM maven:3.9.0-openjdk-17-alpine AS builder
 WORKDIR /app
@@ -22,53 +20,59 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
----
+Técnicas Aplicadas
 
-🎯 **Actividad 1: Optimizar imágenes de Docker**
+Imágenes base ligeras (Alpine)
 
-- **Uso de imágenes base ligeras (Alpine)**: Se utilizó
-`openjdk:17-alpine` y `maven:3.9.0-openjdk-17-alpine` para
-reducir el tamaño de la imagen.
+maven:3.9.0-openjdk-17-alpine para construcción
+openjdk:17-alpine para ejecución
+Reducción significativa del tamaño final
 
-- **Eliminación de archivos innecesarios**: Al usar
-**multi-stage builds**, solo se incluye el archivo `.jar`
-necesario, eliminando las dependencias de Maven.
 
-- **Reducción de capas**: El Dockerfile fue estructurado
-de manera que se optimiza el número de capas,
-evitando copiar archivos innecesarios y limitando
-la cantidad de instrucciones `COPY` y `RUN`.
+Eliminación de archivos innecesarios
 
----
+Solo se copia el .jar compilado a la imagen final
+Las dependencias de Maven quedan en la etapa de build
 
-🛠️ Dockerfile - Versión más pesada (Sin Alpine)
 
-# Stage 1: Build with Maven
+Reducción de capas
+
+Estructura optimizada del Dockerfile
+Mínimo de instrucciones necesarias
+
+Comandos
+# Construir imagen optimizada
+docker build -t vidalluyo0/api_be:optimized .
+
+# Verificar tamaño
+docker images vidalluyo0/api_be:optimized
+
+
+🏗️ Actividad 2: Multi-Stage Builds
+Objetivo
+Separar el proceso de construcción del de ejecución para reducir el tamaño de la imagen final.
+Implementación
+El Dockerfile usa dos etapas:
+
+Stage 1 (Builder): Compila el proyecto con Maven
+Stage 2 (Runtime): Ejecuta solo el .jar en una imagen ligera
+
+Comparación de Tamaños
+Versión Pesada (sin Alpine):
+
 FROM maven:3.8.4-openjdk-17 AS builder
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
+# ... compilación ...
 
-# Stage 2: Run with Java (heavy version)
 FROM openjdk:17
-WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
+# ... ejecución ...
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
 
----
-
-Comandos usados:
- - Construir la imagen:
-
+# Construir versión pesada
 docker build -t vidalluyo0/api_be:big .
 
- - Verificar las imágenes construidas:
+Resultados esperados:
 
-docker images
-
----
+Imagen con Alpine: ~180-200 MB
+Imagen sin Alpine: ~450-500 MB
