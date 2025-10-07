@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  web:
+    image: nginx:latest
+    container_name: web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    depends_on:
+      - redis
+    networks:
+      - mi_red
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - mi_red
+
+networks:
+  mi_red:
+    driver: bridge
