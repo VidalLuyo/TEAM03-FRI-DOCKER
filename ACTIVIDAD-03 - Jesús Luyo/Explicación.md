@@ -49,27 +49,26 @@ Mínimo de instrucciones necesarias
 
 ```
 docker build -t vidalluyo0/api_be:optimized .
-
 ```
 # Verificar tamaño
 
 ```
 docker images vidalluyo0/api_be:optimized
-
 ```
 
-🏗️ Actividad 2: Multi-Stage Builds
-Objetivo
+## 🏗️ Actividad 2: Multi-Stage Builds
+
+### Objetivo
 Separar el proceso de construcción del de ejecución para reducir el tamaño de la imagen final.
-Implementación
+
+# Implementación
 El Dockerfile usa dos etapas:
 
 Stage 1 (Builder): Compila el proyecto con Maven
 Stage 2 (Runtime): Ejecuta solo el .jar en una imagen ligera
 
-Comparación de Tamaños
+# Comparación de Tamaños
 Versión Pesada (sin Alpine):
-
 
 ```
 FROM maven:3.8.4-openjdk-17 AS builder
@@ -81,7 +80,11 @@ FROM openjdk:17
 # ... ejecución ...
 
 # Construir versión pesada
-
 ```
 docker build -t vidalluyo0/api_be:big .
 ```
+
+# Resultados:
+
+Imagen con Alpine: ~180-200 MB
+Imagen sin Alpine: ~450-500 MB
