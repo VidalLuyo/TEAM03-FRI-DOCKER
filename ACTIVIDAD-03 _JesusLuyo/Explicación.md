@@ -79,25 +79,20 @@ FROM openjdk:17
 ```
 # ... ejecución ...
 ```
-FROM maven:3.8.4-openjdk-17 AS builder
+FROM maven:3.8.4-openjdk-17
+
 WORKDIR /app
 
-# Copiar archivos de Maven y el código fuente
 COPY pom.xml .
 COPY src ./src
 
-# Ejecutar la construcción
+# Ejecutar la construcción del proyecto
 RUN mvn clean package -DskipTests
-# Usar la imagen base de OpenJDK para la ejecución
-FROM openjdk:17
-WORKDIR /app
 
-# Copiar el archivo .jar generado desde la etapa de construcción
-COPY --from=builder /app/target/*.jar app.jar
 # Comando para ejecutar la aplicación
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "target/app.jar"]
 ```
-
+![alt text]({44C485C1-9379-4EE6-9744-9913CC0FB10E}.png)
 # Construir versión pesada
 ```
 docker build -t vidalluyo0/api_be:big .
@@ -115,7 +110,20 @@ Imagen sin Alpine: ~450-500 MB
 Crear imágenes compatibles con múltiples arquitecturas (x86_64/AMD64 y ARM64).
 
 ### Implementación
+```
+# Stage 1: Build with Maven
+FROM maven:3.9-eclipse-temurin-17 AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
+# Stage 2: Run with Java (optimized)
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
 **Configuración del Builder:**
 ```bash
 # Remover el builder existente
@@ -154,8 +162,11 @@ docker images vidalluyo0/api_be:multi
 docker buildx imagetools inspect vidalluyo0/api_be:multi
 ```
 Interpretación:
+
 Cada Platform indica una arquitectura soportada
+
 linux/amd64: Para servidores tradicionales, PCs
+
 linux/arm64: Para AWS Graviton, Apple Silicon, Raspberry Pi
 
 # Probar ejecución
@@ -198,4 +209,8 @@ docker buildx imagetools inspect vidalluyo0/api_be:multi
 ![alt text](image-1.png)
 
 Soporta múltiples arquitecturas: AMD64 y ARM64
+
+```
+docker history vidalluyo0/api_be:multi
+```
 
