@@ -26,11 +26,19 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 🎯 Actividad 1: Optimizar imágenes de Docker
 
-Uso de imágenes base ligeras (Alpine): Se utilizó openjdk:17-alpine y maven:3.9.0-openjdk-17-alpine para reducir el tamaño de la imagen.
+Uso de imágenes base ligeras (Alpine): Se utilizó 
+openjdk:17-alpine y maven:3.9.0-openjdk-17-alpine para 
+reducir el tamaño de la imagen.
 
-Eliminación de archivos innecesarios: Al usar multi-stage builds, solo se incluye el archivo .jar necesario, eliminando las dependencias de Maven.
 
-Reducción de capas: El Dockerfile fue estructurado de manera que se optimiza el número de capas, evitando que se copien archivos innecesarios y limitando la cantidad de instrucciones COPY y RUN.
+Eliminación de archivos innecesarios: Al usar multi-stage
+builds, solo se incluye el archivo .jar necesario,
+eliminando las dependencias de Maven.
+
+Reducción de capas: El Dockerfile fue estructurado
+de manera que se optimiza el número de capas,
+evitando que se copien archivos innecesarios
+y limitando la cantidad de instrucciones COPY y RUN.
 
 
 🛠️ Dockerfile - Versión más pesada (Sin Alpine)
@@ -48,3 +56,15 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
+Comandos usados:
+
+Construir la imagen:
+
+docker build -t vidalluyo0/api_be:big .
+
+
+Verificar las imágenes construidas:
+
+docker images
