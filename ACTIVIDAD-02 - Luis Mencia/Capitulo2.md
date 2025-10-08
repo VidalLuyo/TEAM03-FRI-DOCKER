@@ -161,14 +161,160 @@ docker rm -f $(docker ps -aq)
 docker network prune -f
 ```
 
+## 📚 Actividades Adicionales de DataCamp
+
+### 🎯 Actividad 5: Mapeo de Puertos con Dockerfile
+
+**Crear Dockerfile con EXPOSE:**
+```dockerfile
+FROM nginx:latest
+EXPOSE 80
+EXPOSE 443
+COPY index.html /usr/share/nginx/html/
+```
+
+**Comandos:**
+```bash
+# Construir imagen con puertos expuestos
+docker build -t mi-nginx-custom .
+
+# Ejecutar con mapeo automático (-P)
+docker run -d -P --name web-auto mi-nginx-custom
+
+# Ver puerto asignado automáticamente
+docker port web-auto
+```
+
+**Resultado:** Docker asigna puertos aleatorios del host a los puertos expuestos
+
+### 🎯 Actividad 6: Mapeo Efímero (Ephemeral Mapping)
+
+**Comandos ejecutados:**
+```bash
+# Usar -P para mapeo automático de puertos
+docker run -d -P --name nginx-ephemeral nginx
+
+# Ver qué puerto asignó Docker
+docker port nginx-ephemeral
+```
+
+**Salida esperada:**
+```
+80/tcp -> 0.0.0.0:32768
+```
+
+**Funcionamiento:** Docker asigna puertos aleatorios del rango 32768-65535
+
+### 🎯 Actividad 7: Múltiples Contenedores, Mismo Puerto Host
+
+**Pregunta:** ¿Pueden dos contenedores usar el mismo puerto del host?
+
+**Respuesta:** ❌ NO. Cada puerto del host solo puede ser usado por un contenedor.
+
+**Demostración:**
+```bash
+# Primer contenedor en puerto 8080
+docker run -d -p 8080:80 --name web1 nginx
+
+# Intentar segundo contenedor en mismo puerto (FALLA)
+docker run -d -p 8080:80 --name web2 nginx
+# Error: port is already allocated
+```
+
+**Solución:** Usar puertos diferentes del host
+```bash
+docker run -d -p 8081:80 --name web2 nginx
+```
+
+### 🎯 Actividad 8: Rangos de IP en Redes Docker
+
+**Comandos ejecutados:**
+```bash
+# Crear red con rango IP específico
+docker network create --subnet=172.20.0.0/16 mi-red-custom
+
+# Inspeccionar rango de IP
+docker network inspect mi-red-custom --format '{{.IPAM.Config}}'
+
+# Crear contenedor con IP específica
+docker run -d --network mi-red-custom --ip 172.20.0.10 --name web-ip nginx
+```
+
+**Resultado obtenido:**
+```
+[{172.20.0.0/16  172.20.0.1 map[]}]
+```
+
+### 🎯 Actividad 9: Remover Contenedores de Redes
+
+**Comandos ejecutados:**
+```bash
+# Desconectar contenedor de una red
+docker network disconnect backend-network aplicacion-web
+
+# Verificar que se desconectó
+docker network inspect backend-network
+
+# Reconectar a la red
+docker network connect backend-network aplicacion-web
+```
+
+**Funcionamiento:** Permite gestionar dinámicamente las conexiones de red de contenedores en ejecución
+
+### 🎯 Actividad 10: Verificar IP del Contenedor
+
+**Comandos ejecutados:**
+```bash
+# Ver IP de un contenedor específico
+docker inspect aplicacion-web --format '{{.NetworkSettings.IPAddress}}'
+
+# Ver todas las IPs en todas las redes
+docker inspect aplicacion-web --format '{{json .NetworkSettings.Networks}}'
+```
+
+**Salida obtenida:**
+```json
+{
+  "backend-network": {
+    "IPAddress": "172.19.0.3",
+    "Gateway": "172.19.0.1"
+  }
+}
+```
+
+## 🔍 Validación de Puertos (Valid Ports)
+
+### Puertos Válidos en Docker:
+- ✅ **Rango válido:** 1-65535
+- ✅ **Puertos privilegiados:** 1-1023 (requieren permisos root)
+- ✅ **Puertos registrados:** 1024-49151
+- ✅ **Puertos dinámicos:** 49152-65535
+
+**Ejemplos:**
+```bash
+# Puerto válido
+docker run -d -p 8080:80 nginx  ✅
+
+# Puerto inválido (fuera de rango)
+docker run -d -p 70000:80 nginx  ❌
+
+# Puerto privilegiado (puede requerir permisos)
+docker run -d -p 80:80 nginx  ⚠️
+```
+
 ## ✅ Conceptos Demostrados
 
 - ✅ **Port Mapping**: Exposición de servicios al host
+- ✅ **Ephemeral Ports**: Mapeo automático de puertos
+- ✅ **EXPOSE en Dockerfile**: Documentar puertos en imágenes
 - ✅ **Custom Networks**: Redes personalizadas para aislamiento
+- ✅ **IP Ranges**: Configuración de subredes personalizadas
 - ✅ **Container Communication**: Comunicación por nombre DNS
 - ✅ **Network Inspection**: Inspección de configuración de red
+- ✅ **Dynamic Network Management**: Conectar/desconectar contenedores
 - ✅ **Multi-container Setup**: Aplicación con múltiples servicios
+- ✅ **Port Validation**: Comprensión de rangos de puertos válidos
 
 ---
 
-**🎯 Replicación exitosa del Capítulo 2: Networking de DataCamp Intermediate Docker**
+**🎯 Replicación completa del Capítulo 2: Networking de DataCamp Intermediate Docker**
